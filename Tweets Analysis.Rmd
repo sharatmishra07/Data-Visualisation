@@ -1,0 +1,57 @@
+---
+title: "Test 2"
+author: "sharat mishra"
+date: "9 February 2017"
+output: html_document
+Tableau public profile link : https://public.tableau.com/profile/sharat.mishra#!/
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+## 1
+
+```{r}
+library(tm)
+library(SnowballC)
+library(wordcloud)
+library(stringr)
+library(RColorBrewer)
+library(dplyr)
+library(wordcloud)
+library(reshape2)
+library(plotly)
+visualData <- read.csv("~/data_vis_survey.csv")
+
+visualData$Please.describe.your.data.visualization.process. <- as.character(visualData$Please.describe.your.data.visualization.process.)
+head(visualData$Please.describe.your.data.visualization.process.)
+
+word_list <- strsplit(visualData$Please.describe.your.data.visualization.process.,' ')
+
+words <- unlist(word_list)
+words_count <- table(words)
+head(words_count)
+words_count <-sort(words_count,decreasing = T)
+head(words_count)
+words_count <- as.data.frame(words_count)
+
+stop_words <- stopwords()
+custom_stop_words <- c('&amp;','RT','I','My','The','will','We','This','us','will','can','use','want','get','usually','What','make','Then','might')
+
+words_count <- words_count[!words_count$words %in% stop_words,]
+words_count <- words_count[!words_count$words %in% custom_stop_words,]
+
+
+visual_wordcloud <- head(words_count,50)
+visual_wordcloud <- as.data.frame(visual_wordcloud)
+wordcloud(visual_wordcloud$words,visual_wordcloud$Freq,scale = c(3,0.8),colors = brewer.pal(6,'Dark2'))
+```
+
+
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
