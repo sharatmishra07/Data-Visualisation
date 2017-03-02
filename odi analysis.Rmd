@@ -1,0 +1,98 @@
+---
+title: "Assignment-1"
+author: "sharat mishra"
+date: "2 February 2017"
+output: html_document
+
+---
+
+```{r setup, include=FALSE,warning=FALSE,message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(ggplot2)
+odi.batting.analysis <- read.csv("C:/Users/Admin/Downloads/odi-batting-analysis.csv")
+
+
+```
+
+## 1
+
+```{r}
+
+total_runs_months <- odi.batting.analysis %>% group_by(month) %>% summarise(TotalRuns = sum(Runs,na.rm=T))
+ggplot(total_runs_months,aes(x=month,y = TotalRuns)) + geom_bar(stat = 'identity',fill="purple")+ coord_flip() + scale_x_continuous(breaks =  scales::pretty_breaks(n = 12))
+
+
+total_run_day = odi.batting.analysis %>% group_by(day) %>% summarise(TotalRunsDay = sum(Runs,na.rm=TRUE))
+ggplot(total_run_day,aes(x=day,y = TotalRunsDay)) + geom_bar(stat = 'identity',fill="purple")+ coord_flip() + scale_x_continuous(breaks =  scales::pretty_breaks(n = 31))
+
+
+total_runs_weekday = odi.batting.analysis %>% group_by(weekday) %>% summarise(TotalRunsWeek = sum(Runs,na.rm=TRUE))
+ggplot(total_runs_weekday,aes(x=weekday,y = TotalRunsWeek)) + geom_bar(stat = 'identity',fill="purple")+ coord_flip() + scale_x_continuous(breaks =  scales::pretty_breaks(n = 7))
+
+
+```
+
+## 2
+
+```{r}
+odi.batting.analysis<-na.omit(odi.batting.analysis)
+odi.batting.analysis$bin <- cut(odi.batting.analysis$Runs,breaks = c(0,25,50,75,100,200),labels = c("0-25","26-50","51-75","76-100","100+"),include.lowest = TRUE)
+ggplot(odi.batting.analysis,aes(x=bin)) +geom_bar()
+
+
+```
+
+## 3
+
+```{r}
+players_summary <- odi.batting.analysis %>% group_by(Player) %>% summarise(TotalRuns = sum(Runs, na.rm = TRUE))
+top10_players <- head(players_summary %>% arrange(-TotalRuns), 10)
+top10_players
+ggplot(top10_players, aes(x = Player, y = TotalRuns, fill = -TotalRuns)) + geom_bar(stat = "identity",fill="purple") + coord_flip()
+
+
+z<-odi.batting.analysis %>% filter(odi.batting.analysis$Player %in% top10_players$Player,Runs >= 100)
+centuries <- z %>% group_by(Player,Year) %>% summarise(Centuries = n())
+ggplot(centuries, aes(x = Year, y = Centuries)) + geom_bar(stat = "identity", fill="purple" )+facet_wrap(~Player)
+
+x<- odi.batting.analysis %>% filter(odi.batting.analysis$Player %in% top10_players$Player & Runs == 0)
+ducks <- x %>% group_by(Player,Year) %>% summarise(Ducks = n())
+ggplot(ducks, aes(x = Year, y = Ducks)) + geom_bar(stat = "identity",fill="purple")+ facet_wrap(~Player)
+
+
+```
+
+## 4
+
+```{r}
+players_total <- odi.batting.analysis %>% group_by(Player) %>% summarise(TotalRuns = sum(Runs)) %>% arrange(TotalRuns)
+runs_5000 <- filter(players_total, TotalRuns >= 5000)
+head(runs_5000,10)
+ggplot(runs_5000, aes(x = Player, y = TotalRuns )) + geom_bar(stat = "identity",fill="purple")
+
+players_matches <- odi.batting.analysis %>% group_by(Player) %>% summarise(TotalRuns = sum(Runs),count = n()) %>% arrange(TotalRuns)
+matches_50 <- filter(players_matches, count > 50)
+head(matches_50,10)
+ggplot(matches_50, aes(x = Player, y = TotalRuns )) + geom_bar(stat = "identity",fill="purple")
+
+```
+
+## 5
+
+```{r}
+odi.batting.analysis$Player<-as.character(odi.batting.analysis$Player)
+
+q<-strsplit(odi.batting.analysis$Player," ")
+odi.batting.analysis$Freqwords<-sapply(q,length)
+odi.batting.analysis$Freqwords
+str(odi.batting.analysis)
+
+```
+
+## 6
+
+```{r}
+w <- xtabs(~month+day,data = odi.batting.analysis)
+ftable(w)
+```
