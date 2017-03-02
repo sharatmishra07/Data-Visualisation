@@ -1,0 +1,90 @@
+---
+title: "Cricket"
+output: 
+  flexdashboard::flex_dashboard:
+  navbar: -{title:"Indian Team analysis",href:"india_analysis.html"}
+    orientation: rows
+    vertical_layout: scroll
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+```
+
+column {data-width=350}
+-----------------------------------------------------------------------
+
+### Total countries
+
+```{r}
+odi.batting.analysis <- read.csv("C:/Users/Admin/Downloads/odi-batting-analysis.csv")
+total_countries=length(unique(odi.batting.analysis$Country))
+valueBox(total_countries,icon = 'fa.pencil')
+
+```
+
+
+### Total Players
+
+```{r}
+odi.batting.analysis <- read.csv("C:/Users/Admin/Downloads/odi-batting-analysis.csv")
+total_players=length(unique(odi.batting.analysis$Player))
+valueBox(total_players,icon = 'fa.pencil')
+
+
+```
+
+
+### Total matches
+
+``` {r}
+odi.batting.analysis <- read.csv("C:/Users/Admin/Downloads/odi-batting-analysis.csv")
+total_matches=nrow(odi.batting.analysis)
+valueBox(total_matches,icon = 'fa.pencil')
+
+
+```
+
+
+
+row {data-width=650}
+-----------------------------------------------------------------------
+
+
+### Chart B
+
+```{r}
+library(flexdashboard)
+library(ggplot2)
+library(plotly)
+
+
+odi.batting.analysis <- read.csv("C:/Users/Admin/Downloads/odi-batting-analysis.csv")
+#sachin=filter(odi.batting.analysis,Player=='Sachin R Tendulkar')
+summary=odi.batting.analysis %>% group_by(Year) %>% summarise(count= n())
+
+g<-ggplot(summary,aes(x=Year,y=count,group=1))+geom_line()
+ggplotly(g)
+```
+
+
+row {data-width=350}
+-----------------------------------------------------------------------
+
+### chart c
+
+```{r}
+top_countries=odi.batting.analysis %>% group_by(Country) %>% summarise(Runs=sum(Runs,na.rm=T))%>% arrange(-Runs) 
+q_top_countries=ggplot(head(top_countries,10),aes(x=Country,y=Runs)) + geom_bar(stat = 'identity')+ coord_flip()
+ggplotly(q_top_countries)
+```
+
+
+### chart D
+
+```{r}
+top_players=odi.batting.analysis %>% group_by(Player) %>% summarise(Runs=sum(Runs,na.rm=T)) %>% arrange(-Runs)
+q_top_players=ggplot(head(top_players,10),aes(x=Player,y=Runs)) + geom_bar(stat = 'identity')+ coord_flip()
+ggplotly(q_top_players)
+
+```
